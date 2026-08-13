@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>চেকআউট - SOA</title>
+    <!-- DO NOT USE TAILWIND CDN IN PRODUCTION -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Bengali', sans-serif;
+            background-color: #FBFBFD;
+        }
+    </style>
+</head>
+<body class="text-gray-900 antialiased min-h-screen flex flex-col" x-data="checkoutApp()">
+
+    <!-- Header -->
+    <header class="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center px-8 sticky top-0 z-20 shadow-sm">
+        <a href="index.html" class="flex items-center text-green-700 hover:text-green-800 transition">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span class="font-bold text-lg">শপে ফিরে যান</span>
+        </a>
+    </header>
+
+    <!-- Main Checkout Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 md:p-12">
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">চেকআউট</h1>
+            <p class="text-gray-500">আপনার অর্ডারের বিস্তারিত তথ্য প্রদান করুন</p>
+        </div>
+
+        <!-- Empty Cart State -->
+        <template x-if="cart.length === 0">
+            <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100">
+                <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <h3 class="text-xl font-bold text-gray-700 mb-4">আপনার কার্ট খালি!</h3>
+                <a href="index.html" class="inline-block bg-green-700 text-white font-medium px-8 py-3 rounded-full hover:bg-green-800 transition">
+                    কেনাকাটা শুরু করুন
+                </a>
+            </div>
+        </template>
+
+        <template x-if="cart.length > 0">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                
+                <!-- Left Column: Shipping Form -->
+                <div class="lg:col-span-7">
+                    <div class="bg-white rounded-3xl p-8 shadow-[0_2px_15px_rgba(0,0,0,0.04)] border border-gray-50">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6 border-b border-gray-100 pb-4">ডেলিভারি ঠিকানা</h2>
+                        
+                        <form @submit.prevent="submitOrder" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">সম্পূর্ণ নাম <span class="text-red-500">*</span></label>
+                                <input type="text" x-model="formData.name" required placeholder="আপনার নাম লিখুন" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">মোবাইল নম্বর <span class="text-red-500">*</span></label>
+                                <input type="tel" x-model="formData.phone" required placeholder="01XXX-XXXXXX" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">বিস্তারিত ঠিকানা <span class="text-red-500">*</span></label>
+                                <textarea x-model="formData.address" required rows="4" placeholder="বাসা নং, রাস্তা, এলাকা..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"></textarea>
+                            </div>
+
+                            <!-- Error Message Display -->
+                            <div x-show="errorMessage" class="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium" x-text="errorMessage" style="display: none;"></div>
+
+                            <button type="submit" 
+                                    :disabled="isSubmitting"
+                                    class="w-full bg-green-700 text-white font-bold text-lg py-4 rounded-full hover:bg-green-800 transition-all shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed mt-4">
+                                <span x-show="!isSubmitting">অর্ডার কনফার্ম করুন</span>
+                                <span x-show="isSubmitting" style="display: none;">প্রসেস হচ্ছে...</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Order Summary -->
+                <div class="lg:col-span-5">
+                    <div class="bg-gray-50 rounded-3xl p-8 border border-gray-200 sticky top-28">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">অর্ডার সামারি</h2>
+                        
+                        <div class="flow-root mb-6 max-h-96 overflow-y-auto pr-2">
+                            <ul role="list" class="-my-4 divide-y divide-gray-200">
+                                <template x-for="item in cart" :key="item.subProductId">
+                                    <li class="py-4 flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <h3 class="text-sm font-bold text-gray-900 leading-tight" x-text="item.title"></h3>
+                                            <p class="text-sm text-gray-500 mt-1" x-text="'পরিমাণ: ' + item.qty"></p>
+                                        </div>
+                                        <p class="text-sm font-bold text-green-700 ml-4" x-text="'৳' + (item.price * item.qty).toFixed(2)"></p>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4 space-y-3">
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <p>সাবটোটাল</p>
+                                <p x-text="'৳' + cartTotal.toFixed(2)"></p>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <p>ডেলিভারি চার্জ</p>
+                                <p>৳60.00</p>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold text-gray-900 border-t border-gray-200 pt-3 mt-3">
+                                <p>সর্বমোট প্রদান</p>
+                                <p class="text-green-700" x-text="'৳' + (cartTotal + 60).toFixed(2)"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </template>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-gray-300 mt-12 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 py-10 md:py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-slate-800">
+                <!-- Brand Col -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="bg-green-600 p-2 rounded-xl text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">SOA</h3>
+                    </div>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                        প্রকৃতির খাঁটি ও সতেজ পণ্য সরাসরি চাষির ঘর থেকে আপনার দরজায় পৌঁছে দেওয়াই আমাদের লক্ষ্য।
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-white font-semibold text-base mb-4">দ্রুত লিংক</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="index.html" class="hover:text-green-400 transition">হোম</a></li>
+                        <li><a href="checkout.html" class="hover:text-green-400 transition">চেকআউট</a></li>
+                    </ul>
+                </div>
+
+                <!-- Customer Service -->
+                <div>
+                    <h4 class="text-white font-semibold text-base mb-4">গ্রাহক সেবা</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#" class="hover:text-green-400 transition">সহায়তা কেন্দ্র</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition">ডেলিভারি পলিসি</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition">রিটার্ন ও রিফান্ড</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition">গোপনীয়তা নীতি</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-white font-semibold text-base mb-4">যোগাযোগ</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span>ঢাকা, বাংলাদেশ</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            <span>+৮৮০ ১৭০০-০০০০০</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            <span>support@soa.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 pt-2">
+                <p>© ২০২৬ SOA। সর্বস্বত্ব সংরক্ষিত।</p>
+                <p class="mt-2 sm:mt-0">১০০% খাঁটি ও প্রাকৃতিকভাবে প্রক্রিয়াজাত</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('checkoutApp', () => ({
+                cart: JSON.parse(localStorage.getItem('cart') || '[]'),
+                formData: { name: '', phone: '', address: '' },
+                isSubmitting: false,
+                errorMessage: '',
+
+                // ⚠️ আপনার Google Apps Script Web App URL এখানে বসান ⚠️
+                scriptUrl: 'https://script.google.com/macros/s/AKfycbyf9xaj_rYz1HhpP59NoCXZKL6g1Fx_IpmL5rxcgyi5CONT6aI_QFe3j4WzWmsBKUmZ/exec', 
+
+                get cartTotal() {
+                    return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                },
+
+                async submitOrder() {
+                    if (this.cart.length === 0) return;
+                    
+                    if (this.scriptUrl === 'YOUR_WEB_APP_URL_HERE') {
+                        this.errorMessage = "ডেভেলপার এলার্ট: আপনি এখনও scriptUrl পরিবর্তন করেননি!";
+                        return;
+                    }
+
+                    this.isSubmitting = true;
+                    this.errorMessage = '';
+
+                    const payload = {
+                        name: this.formData.name,
+                        phone: this.formData.phone,
+                        address: this.formData.address,
+                        cart: this.cart,
+                        total: this.cartTotal + 60 // Including dummy delivery charge
+                    };
+
+                    try {
+                        const response = await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            body: JSON.stringify(payload),
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain to avoid strict CORS preflight
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.status === "success") {
+                            alert("আপনার অর্ডার সফলভাবে প্লেস হয়েছে! ধন্যবাদ।");
+                            localStorage.removeItem('cart');
+                            window.location.href = "index.html";
+                        } else {
+                            throw new Error(result.message || "সার্ভার এরর");
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        this.errorMessage = "অর্ডার প্লেস করতে সমস্যা হয়েছে। দয়া করে ইন্টারনেট কানেকশন চেক করুন বা পরে চেষ্টা করুন।";
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
