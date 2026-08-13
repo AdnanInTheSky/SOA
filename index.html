@@ -116,8 +116,8 @@
             <div>
                 <!-- HOME VIEW -->
                 <div x-show="currentView === 'home'" x-transition.opacity>
-                    <!-- HERO SECTION (IMAGE ONLY) -->
-                    <div class="w-full rounded-3xl overflow-hidden mb-8 md:mb-12 shadow-sm border border-gray-100 max-h-64 md:max-h-80 bg-gray-100">
+                    <!-- HERO SECTION (IMAGE ONLY - FLEX) -->
+                    <div class="w-full flex items-center justify-center rounded-3xl overflow-hidden mb-8 md:mb-12 shadow-sm border border-gray-100 max-h-64 md:max-h-80 bg-gray-100">
                         <img src="content/images/soa_hero_banner.jpg" 
                              alt="SOA Hero Banner" 
                              class="w-full h-full object-cover rounded-3xl"
@@ -309,38 +309,98 @@
     </div>
 
     <script>
-        const productsData = [
-            { 
-                "id": "prod_001", "imageSrc": "content/images/rice_grains_cat.jpg", "title": "চাল ও শস্য", "tags": ["চাল ও শস্য "], 
-                "types": [ 
-                    { "subProductId": "p1_1", "subTitle": "ঢেঁকি ছাঁটা লাল চাল (আউস-ব্রি)", "price": 120, "subImage": "content/images/red_rice_aus.jpg" }, 
-                    { "subProductId": "p1_2", "subTitle": "ঢেঁকি ছাঁটা লাল চাল (গাঞ্জিয়া)", "price": 130, "subImage": "content/images/red_rice_aus.jpg" }, 
-                    { "subProductId": "p1_3", "subTitle": "ব্ল্যাক রাইস", "price": 250, "subImage": "content/images/black_rice.jpg" } 
-                ] 
-            },
-            { 
-                "id": "prod_002", "imageSrc": "content/images/atta_chhatu_cat.jpg", "title": "আটা ও ছাতু", "tags": ["আটা ও ছাতু"], 
-                "types": [ 
-                    { "subProductId": "p2_1", "subTitle": "ঢেঁকি ছাঁটা যবের ছাতু", "price": 180, "subImage": "content/images/atta_chhatu_cat.jpg" }, 
-                    { "subProductId": "p2_2", "subTitle": "লাল আটা", "price": 90, "subImage": "content/images/atta_chhatu_cat.jpg" } 
-                ] 
-            },
-            { 
-                "id": "prod_003", "imageSrc": "content/images/oil_ghee_cat.jpg", "title": "তেল ও ঘি", "tags": [" তেল ও ঘি "], 
-                "types": [ 
-                    { "subProductId": "p3_1", "subTitle": "কাঠের ঘানির সরিষার তেল", "price": 300, "subImage": "content/images/oil_ghee_cat.jpg" }, 
-                    { "subProductId": "p3_2", "subTitle": "ঘি", "price": 1200, "subImage": "content/images/pure_ghee.jpg" } 
-                ] 
-            },
-            { 
-                "id": "prod_004", "imageSrc": "content/images/honey_cat.jpg", "title": "মধু", "tags": ["মধু "], 
-                "types": [ 
-                    { "subProductId": "p4_1", "subTitle": "মধু (সরিষা)", "price": 400, "subImage": "content/images/honey_cat.jpg" }, 
-                    { "subProductId": "p4_2", "subTitle": "মধু (সুন্দরবন)", "price": 800, "subImage": "content/images/honey_cat.jpg" } 
-                ] 
-            }
-        ];
-
+const productsData = [
+    { 
+        "id": "prod_001", 
+        "imageSrc": "content/images/rice_grains_cat.jpg", 
+        "title": "চাল ও শস্য", 
+        "tags": ["চাল ও শস্য "], 
+        "types": [ 
+            { "subProductId": "p1_1", "subTitle": "ঢেঁকি ছাঁটা লাল চাল (আউস-ব্রি)", "price": 120, "subImage": "content/images/red_rice_aus.jpg" }, 
+            { "subProductId": "p1_2", "subTitle": "ঢেঁকি ছাঁটা লাল চাল (গাঞ্জিয়া)", "price": 130, "subImage": "content/images/red_rice_aus.jpg" }, 
+            { "subProductId": "p1_3", "subTitle": "ব্ল্যাক রাইস", "price": 250, "subImage": "content/images/black_rice.jpg" },
+            // Missing items appended below:
+            { "subProductId": "prod_001_type_003", "subTitle": "ঢেঁকি ছাঁটা ব্রাউন চাল (কাটারী২৮)", "subImage": "/content/images/ঢেঁকি ছাঁটা ব্রাউন চাল (কাটারী২৮).webp", "price": 199.99 },
+            { "subProductId": "prod_001_type_005", "subTitle": "কাউনের চাল", "subImage": "/content/images/কাউনের চাল.jpg", "price": 199.99 },
+            { "subProductId": "prod_001_type_006", "subTitle": "ঢেঁকি ছাঁটা চালের গুড়া", "subImage": "/content/images/ঢেঁকি ছাঁটা চালের গুড়া.jpg", "price": 199.99 },
+            { "subProductId": "prod_001_type_007", "subTitle": "লাল চিড়া", "subImage": "/content/images/লাল চিড়া.jpg", "price": 199.99 },
+            { "subProductId": "prod_001_type_008", "subTitle": "হাতে ভাজা মুড়ি (সাদা)", "subImage": "/content/images/হাতে ভাজা মুড়ি (সাদা).jpg", "price": 199.99 }
+        ] 
+    },
+    { 
+        "id": "prod_002", 
+        "imageSrc": "content/images/atta_chhatu_cat.jpg", 
+        "title": "আটা ও ছাতু", 
+        "tags": ["আটা ও ছাতু"], 
+        "types": [ 
+            { "subProductId": "p2_1", "subTitle": "ঢেঁকি ছাঁটা যবের ছাতু", "price": 180, "subImage": "content/images/atta_chhatu_cat.jpg" }, 
+            { "subProductId": "p2_2", "subTitle": "লাল আটা", "price": 90, "subImage": "content/images/atta_chhatu_cat.jpg" },
+            // Missing items appended below:
+            { "subProductId": "prod_002_type_002", "subTitle": "যবের আটা", "subImage": "/content/images/যবের আটা.jpg", "price": 249.5 },
+            { "subProductId": "prod_002_type_003", "subTitle": "মাসকালাইয়ের গুড়া", "subImage": "/content/images/মাসকালাইয়ের গুড়া.jpg", "price": 249.5 },
+            { "subProductId": "prod_002_type_005", "subTitle": "লাল চিনি", "subImage": "/content/images/লাল চিনি.jpg", "price": 249.5 },
+            { "subProductId": "prod_002_type_006", "subTitle": "সোয়ালিক্স (মিক্সড ছাতু)", "subImage": "/content/images/সোয়ালিক্স (মিক্সড ছাতু).jpg", "price": 249.5 }
+        ] 
+    },
+    { 
+        "id": "prod_003", 
+        "imageSrc": "content/images/oil_ghee_cat.jpg", 
+        "title": "তেল ও ঘি", 
+        "tags": [" তেল ও ঘি "], 
+        "types": [ 
+            { "subProductId": "p3_1", "subTitle": "কাঠের ঘানির সরিষার তেল", "price": 300, "subImage": "content/images/oil_ghee_cat.jpg" }, 
+            { "subProductId": "p3_2", "subTitle": "ঘি", "price": 1200, "subImage": "content/images/pure_ghee.jpg" } 
+        ] 
+    },
+    { 
+        "id": "prod_004", 
+        "imageSrc": "content/images/honey_cat.jpg", 
+        "title": "মধু", 
+        "tags": ["মধু "], 
+        "types": [ 
+            { "subProductId": "p4_1", "subTitle": "মধু (সরিষা)", "price": 400, "subImage": "content/images/honey_cat.jpg" }, 
+            { "subProductId": "p4_2", "subTitle": "মধু (সুন্দরবন)", "price": 800, "subImage": "content/images/honey_cat.jpg" },
+            // Missing items appended below:
+            { "subProductId": "prod_004_type_002", "subTitle": "মধু (লিচু)", "subImage": "/content/images/মধু (লিচু).jpg", "price": 149 },
+            { "subProductId": "prod_004_type_003", "subTitle": "মধু (কালোজিরা)", "subImage": "/content/images/মধু (কালোজিরা).jpg", "price": 149 }
+        ] 
+    },
+    // Missing categories appended below:
+    {
+        "id": "prod_005",
+        "imageSrc": "/content/images/bij and pawdar.jpg",
+        "title": " বীজ ও পাউডার ",
+        "tags": [" বীজ ও পাউডার "],
+        "types": [
+            { "subProductId": "prod_005_type_001", "subTitle": "তিল", "subImage": "/content/images/তিল.jpg", "price": 79.5 },
+            { "subProductId": "prod_005_type_002", "subTitle": "কালোজিরা", "subImage": "/content/images/কালোজিরা.jpg", "price": 79.5 },
+            { "subProductId": "prod_005_type_003", "subTitle": "চিয়া সীড", "subImage": "/content/images/চিয়া সীড.jpg", "price": 79.5 },
+            { "subProductId": "prod_005_type_004", "subTitle": "তিসি", "subImage": "/content/images/তিসি.jpg", "price": 79.5 },
+            { "subProductId": "prod_005_type_005", "subTitle": "মরিঙ্গা পাউডার", "subImage": "/content/images/মরিঙ্গা পাউডার.jpg", "price": 79.5 }
+        ]
+    },
+    {
+        "id": "prod_006",
+        "imageSrc": "/content/images/মসলা.jpg",
+        "title": "মসলা ",
+        "tags": ["মসলা "],
+        "types": [
+            { "subProductId": "prod_006_type_001", "subTitle": "মরিচের গুড়া", "subImage": "/content/images/মরিচের গুড়া.jpg", "price": 129.99 },
+            { "subProductId": "prod_006_type_002", "subTitle": "হলুদের গুড়া", "subImage": "/content/images/হলুদের গুড়া.jpg", "price": 129.99 },
+            { "subProductId": "prod_006_type_003", "subTitle": "হিমালয়ান পিংক সল্ট", "subImage": "/content/images/হিমালয়ান পিংক সল্ট.jpg", "price": 129.99 },
+            { "subProductId": "prod_006_type_004", "subTitle": "ঢেঁকি ছাঁটা মসলা গুড়া", "subImage": "/content/images/ঢেঁকি ছাঁটা মসলা গুড়া.jpg", "price": 129.99 }
+        ]
+    },
+    {
+        "id": "prod_007",
+        "imageSrc": "/content/images/কম্বোপ্যাক.png",
+        "title": "কম্বোপ্যাক",
+        "tags": ["কম্বোপ্যাক"],
+        "types": [
+            { "subProductId": "prod_007_type_001", "subTitle": "কম্বোপ্যাক-তালবিনা", "subImage": "/content/images/কম্বোপ্যাক-তালবিনা.jpg", "price": 2000 }
+        ]
+    }
+];
         document.addEventListener('alpine:init', () => {
             Alpine.data('shopApp', () => ({
                 products: productsData,
