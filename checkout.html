@@ -202,45 +202,45 @@
 
                 async submitOrder() {
                     if (this.cart.length === 0) return;
-                    
-                    if (this.scriptUrl === 'YOUR_WEB_APP_URL_HERE') {
-                        this.errorMessage = "ডেভেলপার এলার্ট: আপনি এখনও scriptUrl পরিবর্তন করেননি!";
-                        return;
-                    }
 
                     this.isSubmitting = true;
                     this.errorMessage = '';
+
+                    const orderDetails = {
+                        orderId: 'SOA-' + Math.floor(100000 + Math.random() * 900000),
+                        date: new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
+                        name: this.formData.name,
+                        phone: this.formData.phone,
+                        address: this.formData.address,
+                        cart: [...this.cart],
+                        subtotal: this.cartTotal,
+                        deliveryFee: 60,
+                        total: this.cartTotal + 60
+                    };
 
                     const payload = {
                         name: this.formData.name,
                         phone: this.formData.phone,
                         address: this.formData.address,
                         cart: this.cart,
-                        total: this.cartTotal + 60 // Including dummy delivery charge
+                        total: this.cartTotal + 60
                     };
 
-                    try {
-                        const response = await fetch(this.scriptUrl, {
-                            method: 'POST',
-                            body: JSON.stringify(payload),
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain to avoid strict CORS preflight
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.status === "success") {
-                            alert("আপনার অর্ডার সফলভাবে প্লেস হয়েছে! ধন্যবাদ।");
-                            localStorage.removeItem('cart');
-                            window.location.href = "index.html";
-                        } else {
-                            throw new Error(result.message || "সার্ভার এরর");
+                    if (this.scriptUrl && this.scriptUrl !== 'YOUR_WEB_APP_URL_HERE') {
+                        try {
+                            await fetch(this.scriptUrl, {
+                                method: 'POST',
+                                body: JSON.stringify(payload),
+                                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                            });
+                        } catch (error) {
+                            console.error('Apps Script post error:', error);
                         }
-                    } catch (error) {
-                        console.error(error);
-                        this.errorMessage = "অর্ডার প্লেস করতে সমস্যা হয়েছে। দয়া করে ইন্টারনেট কানেকশন চেক করুন বা পরে চেষ্টা করুন।";
-                    } finally {
-                        this.isSubmitting = false;
                     }
+
+                    localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+                    localStorage.removeItem('cart');
+                    window.location.href = "success.html";
                 }
             }));
         });
